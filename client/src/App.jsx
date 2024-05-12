@@ -8,13 +8,14 @@ import Signin from './pages/Signin'
 import Signout from './pages/Signout'
 import Profie from './pages/Profie'
 import About from './pages/About'
+import Header from './Component/Header'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
     <BrowserRouter>
+    <Header >
     <Routes>
       <Route path='/' element={<Home/>} />
       <Route path="/signin" element={<Signin/>}/>
@@ -22,6 +23,7 @@ function App() {
       <Route path="/about" element={<About/>}/>
       <Route path="/profile" element={<Profie/>}/>
     </Routes>
+    </Header>
     </BrowserRouter>
     </>
   )
