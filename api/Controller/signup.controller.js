@@ -10,10 +10,10 @@ export const signup=async (req,res,next)=>{
 
     try{
     const UserModel =  await User.create({
-        username  , password:hashedpassword, email
+        username  , email ,password:hashedpassword
     })
     return res.status(202).json({
-        msg:"added to database?"
+        msg:"added to database"
     })
     }
     catch(error){

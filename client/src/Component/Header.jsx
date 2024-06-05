@@ -40,7 +40,9 @@ const Header = () => {
           </Link>
         </ul>
       </div>
+    
     </header>
+    
     </div>
   )
 }
