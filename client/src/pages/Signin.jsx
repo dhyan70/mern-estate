@@ -1,11 +1,15 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import { signInFailure , signInSuccess } from '../Redux/User/UserSlice'
+import { useSelector , useDispatch } from 'react-redux'
 const Signin = () => {
 
-const [error , setError] = useState(null)
 const [formData , setFormData] = useState({})
+const { error }  = useSelector((state) => state.user)
 const navigate = useNavigate();
+
+const dispatch = useDispatch()
 
   const handleChange=(e)=>{
     setFormData({
@@ -27,13 +31,14 @@ const navigate = useNavigate();
 
       const res = await response.json()
       if(res.success== false){
-        setError(res.message)
+        dispatch(signInFailure(res.message))
       }else{
+        dispatch(signInSuccess(res))
         navigate("/")
       }
     }
     catch(e){
-      setError(e)
+      dispatch(signInFailure(e.message))
     }
   }
 
