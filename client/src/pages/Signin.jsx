@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { signInFailure , signInSuccess } from '../Redux/User/UserSlice'
 import { useSelector , useDispatch } from 'react-redux'
+import { useEffect } from 'react'
+import OAuth from '../Component/OAuth'
 const Signin = () => {
 
 const [formData , setFormData] = useState({})
@@ -10,6 +12,10 @@ const { error }  = useSelector((state) => state.user)
 const navigate = useNavigate();
 
 const dispatch = useDispatch()
+
+useEffect(() => {
+  dispatch(signInFailure(null))
+},[]);
 
   const handleChange=(e)=>{
     setFormData({
@@ -32,7 +38,9 @@ const dispatch = useDispatch()
       const res = await response.json()
       if(res.success== false){
         dispatch(signInFailure(res.message))
+        
       }else{
+        console.log(res)
         dispatch(signInSuccess(res))
         navigate("/")
       }
@@ -46,7 +54,7 @@ const dispatch = useDispatch()
     <div>
        <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl text-center font-semibold my-7'>Sign In</h1>
-      <form onSubmit={submitHandler} className='flex flex-col gap-4'>
+      <form onSubmit={submitHandler} className='flex flex-col gap-4' >
         <input
           type='email'
           placeholder='email'
@@ -65,7 +73,7 @@ const dispatch = useDispatch()
         <button className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80' >
         Submit 
         </button>
-        
+        <OAuth />
       </form>
       <div className='flex gap-2 mt-5'>
         <p>Dont have an account?</p>
