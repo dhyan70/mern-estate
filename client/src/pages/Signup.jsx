@@ -2,12 +2,15 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import OAuth from '../Component/OAuth'
+import { useDispatch } from 'react-redux'
+import { signInSuccess ,signInFailure } from '../Redux/User/UserSlice'
+import { useSelector } from 'react-redux'
 export default function Signup  () {
 
 const [FormData , Setformdata] = useState({})
-const [error , setError ] = useState(null)
+const { error } = useSelector((state)=>state.user)
 const navigate = useNavigate();
-
+const dispatch = useDispatch()
 const handlechange =(e)=>{
   Setformdata({
     ...FormData,
@@ -27,16 +30,17 @@ const submitHandler=async (e)=>{
     });
     const data = await response.json();
     if(data.success == false){
-      setError(data.message)
+      dispatch(signInFailure(data.message))
       return
     }else{
       console.log(data)
+      dispatch(signInSuccess(data))
       navigate("/")
     }
     
   }
   catch(error){
-    setError(error.message)
+    dispatch(signInFailure(error.message))
   }
 }
 
