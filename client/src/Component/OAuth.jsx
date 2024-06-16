@@ -35,6 +35,7 @@ const OAuth = () => {
           console.log(res.message)
           dispatch(signInFailure(res.message))
         }else{
+          localStorage.setItem("token" , res.token)
         console.log(res)
           navigate("/")
           dispatch(signInSuccess(res))

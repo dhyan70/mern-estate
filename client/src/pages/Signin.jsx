@@ -27,7 +27,8 @@ useEffect(() => {
   const submitHandler=async (e)=>{
     try{
     e.preventDefault();
-    const response = await fetch("http://localhost:3000/api/auth/signin", {
+    const response = await fetch("http://localhost:3000/api/auth/signin",
+       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,11 +37,12 @@ useEffect(() => {
       });
 
       const res = await response.json()
+      console.log(res)
       if(res.success== false){
         dispatch(signInFailure(res.message))
         
       }else{
-        console.log(res)
+        localStorage.setItem("token" , res.token)
         dispatch(signInSuccess(res))
         navigate("/")
       }

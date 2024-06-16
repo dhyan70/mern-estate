@@ -15,11 +15,26 @@ export const UserSlice = createSlice({
       },
       signInFailure:(state,action)=>{
         state.error=action.payload
-     }
+     },
+     updateSuccess:(state,action)=>{
+      state.currentUser = action.payload
+     },
+     updateFailure:(state,action)=>{
+      state.error=action.payload
+   },
+   deleteSuccess:(state,action)=>{
+      state.currentUser = null
+     },
+     deleteFailure:(state,action)=>{
+      state.error=action.payload
+   },
+   ErrorUpdate:(state)=>{
+      state.error=null
+   }
     }
   })
 
 
-  export const { signInFailure , signInSuccess } = UserSlice.actions
+  export const { signInFailure , signInSuccess , updateFailure , updateSuccess , deleteFailure , deleteSuccess , ErrorUpdate } = UserSlice.actions
 
   export default UserSlice.reducer

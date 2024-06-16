@@ -33,6 +33,7 @@ const submitHandler=async (e)=>{
       dispatch(signInFailure(data.message))
       return
     }else{
+      localStorage.setItem("token" , data.token)
       console.log(data)
       dispatch(signInSuccess(data))
       navigate("/")

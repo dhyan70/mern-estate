@@ -5,8 +5,9 @@ import Userrouter from './Routes/user.routes.js'
 import Authrouter from './Routes/auth.routes.js'
 import dotenv from 'dotenv'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
-
+app.use(cookieParser())
 dotenv.config()
 app.use(express.json())
 mongoose.connect(process.env.MONGO)

@@ -8,13 +8,14 @@ export const signup=async (req,res,next)=>{
     const email = req.body.email
 
     const hashedpassword = bcrypt.hashSync(password , 10)
-
+    
     try{
     const user =  await User.create({
         username  , email ,password:hashedpassword
     })
-    return res.status(202).json({
-        user
+    const token = jwt.sign( {id :user._id} , process.env.JWT_SECRET)
+     res.status(202).json({
+        user,token
     })
     }
     catch(error){
@@ -38,7 +39,9 @@ if(!validpass){
     return next(errorhandler(404 , "Wrong Password"))}
 
     const token = jwt.sign( {id :user._id} , process.env.JWT_SECRET)
-    res.cookie("access_token" , token , {httpOnly:true} ).status(200).json({user})
+    res
+    .status(200)
+    .json({user,token})
 }
 catch(error){
     next(error)
@@ -52,7 +55,9 @@ export const google =async (req,res,next)=>{
     const user = await User.findOne({email:email})
     if(user){
         const token = jwt.sign({id : user._id} , process.env.JWT_SECRET)
-        res.cookie("access_token" , token, {httpOnly : true}).status(200).json({user})
+        res
+        .status(200)
+        .json({user,token})
     }else{
         const email = req.body.email
         const photo = req.body.photo
@@ -69,10 +74,17 @@ export const google =async (req,res,next)=>{
             avatar :photo
         })
         const token =jwt.sign({id : user._id} , process.env.JWT_SECRET)
-        res.cookie("access_token" , token, {httpOnly : true}).status(200).json({user})
+        res
+        .status(200)
+        .json({user,token})
     }
 }catch(e){
     next(e)
+}   
 }
-     
+
+export const signout=(req,res,next)=>{
+  
+        if(req.id !== req.params.id) return next(errorhandler(404 , 'delete your own account'))
+            res.status(200).json('signout success!');
 }
