@@ -1,7 +1,7 @@
 import User from "../models/user.model.js"
 import { errorhandler } from "../utils/error.js"
 import bcrypt from 'bcryptjs'
-
+import Listing from "../models/listing.model.js"
 export const test =(req,res)=>{
  
     res.json({
@@ -41,6 +41,26 @@ export const deleteUser= async (req,res,next)=>{
         }catch(e){
             next(errorhandler(404,"error here"))
         }
+}
 
+export const getListing =async(req, res , next)=>{
+    if(req.id  !== req.params.id) return next(errorhandler(404 , "show  your own account"))
+        try{
+        const listing =await Listing.find({ userRef : req.params.id })
+        
+    res.status(202).json(listing)
+}catch(e){
+    next(e)
+}
+}
 
+export const getUserDetails=async(req,res,next)=>{
+    try{
+    const user = await User.findById(req.params.id)
+    if(!user) return next(errorhandler(404,"owner not found"))
+        res.status(200).json(user)
+    }
+catch(e){
+next(e)
+}
 }

@@ -1,7 +1,7 @@
 import React, { useState  , useEffect} from 'react'
 import { useSelector } from 'react-redux'
 import { useRef } from "react";
-import { getStorage,ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { getStorage,ref, uploadBytesResumable, getDownloadURL, list } from "firebase/storage";
 import { app } from '../../firebase';
 import { updateFailure , updateSuccess , deleteFailure , deleteSuccess , ErrorUpdate } from '../Redux/User/UserSlice';
 import { useDispatch } from 'react-redux';
@@ -13,8 +13,11 @@ const Profie = () => {
   const [file , setFile] = useState(undefined)
   const [error2 , setError2] = useState(false)
   const [filePerc, setFilePerc] = useState(0);
+  const [listing , setListing] = useState([])
 const [formData , setFormData] = useState({})
 const [update , setUpdate] = useState("")
+const [delErr , setDelErr] = useState(null)
+const [listingError , setshowListingError] = useState(null) 
 const navigate = useNavigate()
 const dispatch = useDispatch()
   useEffect(()=>{
@@ -79,7 +82,7 @@ dispatch(updateFailure(e.message))
 const handleChange=(e)=>{
   setFormData({...formData , [e.target.id] : e.target.value })
 }
-  console.log(currentUser)
+  
 
 
   
@@ -123,7 +126,50 @@ const handleSignOut=async (e)=>{
 dispatch(deleteFailure(e.message))
   }
 }
+const handleShowListings=async(e)=>{
+e.preventDefault()
+const id = currentUser.user._id
+console.log(id)
+try{
+  const response = await fetch(`http://localhost:3000/api/user/listing/${id}`, {
+    method: "GET", 
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token")
+    },
+    
+  });
+  const res = await response.json()
+  console.log(res)
+  if(res.success == false){
+   return  setshowListingError("error in showing listing")
+  }
+  console.log(res)
+  setListing(res)
+}catch(e){
+  setshowListingError(e.message)
+}
+}
 
+const handleListingDelete=async (id)=>{
+  try{
+  const response = await fetch(`http://localhost:3000/api/listing/delete/${id}`, {
+    method: "DELETE", 
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token")
+    },
+  });
+  const res = await response.json()
+  if(res.success == false){
+    setDelErr("error in deletion")
+  }
+  setListing(listing.filter((item)=> item._id != id))
+}catch(e){
+  setDelErr("error in deleting the listt")
+}
+}
+console.log(listing)
   return (
     <div>
         <div className='p-3 max-w-lg mx-auto'>
@@ -190,11 +236,54 @@ dispatch(deleteFailure(e.message))
           Sign out
         </span>
       </div>
+      <button onClick={handleShowListings} className='text-green-700 w-full'>
+        Show Listings
+      </button>
   <span className='text-red-600 font-semibold'>{error ? error : null}</span>
   <span className='text-green-700 font-semibold'>{update ? update :  null}</span>
+  {listing && listing.length > 0 && (
+        <div className='flex flex-col gap-4'>
+          <h1 className='text-center mt-7 text-2xl font-semibold'>
+            Your Listings
+          </h1>
+          {listing.map((item) => (
+            <div
+              key={item._id}
+              className='border rounded-lg p-3 flex justify-between items-center gap-4'
+            >
+              <Link to={`/listing/${item._id}`}>
+                <img
+                  src={item.imageUrls[0]}
+                  alt='listing cover'
+                  className='h-16 w-16 object-contain'
+                />
+              </Link>
+              <Link
+                className='text-slate-700 font-semibold  hover:underline truncate flex-1'
+                to={`/listing/${item._id}`}
+              >
+                <p>{item.name}</p>
+              </Link>
+
+              <div className='flex flex-col item-center'>
+                <button
+                  onClick={() => handleListingDelete(item._id)}
+                  className='text-red-700 uppercase'
+                >
+                  Delete
+                </button>
+                <Link to={`/update-listing/${item._id}`}>
+                  <button className='text-green-700 uppercase'>Edit</button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
     </div>
     </div>
+    
   )
 }
 

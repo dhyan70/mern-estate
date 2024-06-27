@@ -9,9 +9,10 @@ export const verifyUser=(req,res,next)=>{
  try{
     const verify = jwt.verify( fulltoken , process.env.JWT_SECRET)  
     req.id = verify.id
+    
     next()
   }catch(e){
-    next(errorhandler(404,'Update your own account'))
+    next(errorhandler(404,'Update your own account by middleware'))
   }
 
 }
