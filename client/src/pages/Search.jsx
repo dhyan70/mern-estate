@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import Listing from './Listing'
+import Listings from '../Component/Listing'
 const Search = () => {
     const [formData , setFormData ]= useState({
         searchTerm : '',
@@ -12,41 +14,43 @@ const Search = () => {
         offer : false
     })
     const [listing , setListing] = useState([])
-
+    const [showMore , setShowMore] = useState(false)
+    const [loading , setLoading] = useState(false)
   
     useEffect(()=>{
       let params = new URLSearchParams(location.search);
     const searchTermFromUrl = params.get("searchTerm")
-    // const typeFromUrl = params.get("type")
-    // const offerFromUrl = params.get("offer")
-    // const parkingFromUrl = params.get("parking")
-    // const furnishedFromUrl = params.get("furnished")
-    // const orderFromUrl = params.get("order")
-    // const sortFromUrl = params.get("sort")
+    const typeFromUrl = params.get("type")
+    const offerFromUrl = params.get("offer")
+    const parkingFromUrl = params.get("parking")
+    const furnishedFromUrl = params.get("furnished")
+    const orderFromUrl = params.get("order")
+    const sortFromUrl = params.get("sort")
 
     if (
-      searchTermFromUrl
-      // typeFromUrl ||
-      // parkingFromUrl ||
-      // furnishedFromUrl ||
-      // offerFromUrl ||
-      // sortFromUrl ||
-      // orderFromUrl
+      searchTermFromUrl ||
+      typeFromUrl ||
+      parkingFromUrl ||
+      furnishedFromUrl ||
+      offerFromUrl ||
+      sortFromUrl ||
+      orderFromUrl
     ) {
       setFormData({
         ...formData,
         searchTerm: searchTermFromUrl || '',
-    //     type: typeFromUrl || 'all',
-    //     parking: parkingFromUrl === 'true' ? true : false,
-    //     furnished: furnishedFromUrl === 'true' ? true : false,
-    //     offer: offerFromUrl === 'true' ? true : false,
-    //     sort: sortFromUrl || 'created_at',
-    //     order: orderFromUrl || 'desc',
+        type: typeFromUrl || 'all',
+        parking: parkingFromUrl === 'true' ? true : false,
+        furnished: furnishedFromUrl === 'true' ? true : false,
+        offer: offerFromUrl === 'true' ? true : false,
+        sort: sortFromUrl || 'created_at',
+        order: orderFromUrl || 'desc',
       });
     }
 
 
       const getInfo =async()=>{
+        setLoading(true)
         const searchQuery = params.toString();
         const response = await fetch(`http://localhost:3000/api/listing/search?${searchQuery}`, {
           method: "GET", 
@@ -59,7 +63,15 @@ const Search = () => {
         if(data.success == false){
           console.log(data.message)
         }
+        console.log(data.length)
+        if(data.length == 9){
+          setShowMore(true)
+        }else{
+          setShowMore(false)
+        }
+        setLoading(false)
         setListing(data)
+        
       }
       getInfo()
     },[location.search])
@@ -104,8 +116,34 @@ const onSubmitHandler =(e)=>{
     const searchQuery = params.toString(); 
     navigate(`/search?${searchQuery}`);
 }
-   
-
+const showMoreHandle =async()=>{
+  const startingIndex = listing.length
+  if(startingIndex == 9){
+    setShowMore(true)
+  const params = new URLSearchParams(location.search)
+  params.set("startIndex" , startingIndex)
+  const searchQuery = params.toString();
+  console.log(searchQuery)
+  const response = await fetch(`http://localhost:3000/api/listing/search?${searchQuery}`, {
+    method: "GET", 
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(),
+  });
+  const data = await response.json();
+  console.log(data)
+  if(data.success == false){
+    console.log(data.message)
+  }
+  setListing([...listing , ...data])
+  if(data.length == 9) {
+   setShowMore(true) 
+  }else{
+    setShowMore(false)
+  }
+}
+}
 
   return (
     <div>
@@ -215,8 +253,26 @@ const onSubmitHandler =(e)=>{
           Listing results:
         </h1>
         <div className='p-7 flex flex-wrap gap-4'>
-           
-        
+        {!loading && listing.length === 0 && (
+            <p className='text-xl text-slate-700'>No listing found!</p>
+          )}
+          {loading && (
+            <p className='text-xl text-slate-700 text-center w-full'>
+              Loading...
+            </p>
+          )}
+
+        {listing.map((listing) => (
+              <Listings key={listing._id} listing={listing} />
+            ))}
+             {showMore && (
+            <button
+              onClick={showMoreHandle}
+              className='text-green-700 hover:underline p-7 text-center w-full'
+            >
+              Show more
+            </button>
+          )}
         </div>
       </div>
     </div>

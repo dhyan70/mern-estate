@@ -100,5 +100,6 @@ export const getistings =async(req,res,next)=>{
    type
   }).limit(limit)
   .sort({[sort] :order})
+  .skip(startIndex)
   res.status(200).json(listing)
 }

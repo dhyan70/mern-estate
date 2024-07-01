@@ -99,7 +99,7 @@ console.log(listing.imageUrls)
               </p>
               {listing.offer && (
                 <p className='bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md'>
-                  ${+listing.regularPrice - +listing.discountPrice} OFF
+                  {parseInt(((+listing.regularPrice - +listing.discountPrice)/ +listing.regularPrice)*100)}% OFF
                 </p>
               )}
             </div>
