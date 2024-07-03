@@ -11,11 +11,14 @@ const Header = () => {
 const navigate = useNavigate()
   const handleClick =(e)=>{
     e.preventDefault()
-    
+    try{
     const params = new URLSearchParams(window.location.search);
      params.set("searchTerm" , searchValue)
      const searchQuery = params.toString();
     navigate(`/search?${searchQuery}`)
+    }catch(e){
+      console.log(e)
+    }
   }
 
   useEffect(()=>{

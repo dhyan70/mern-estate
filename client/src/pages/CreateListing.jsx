@@ -52,7 +52,7 @@ if(files.length > 0 && files.length + formData.imageUrls.length <7 ){
 }
 }
 
-console.log(formData)
+
 const storage =(file)=>{
   return new Promise((resolve , reject)=>{
     const storage = getStorage(app);
@@ -266,8 +266,7 @@ const onSubmitHandler=async(e)=>{
                 onChange={onChangeHandler}
               />
               <div className='flex flex-col items-center'>
-                <p>Regular price</p>
-                  <span className='text-xs'>($ / month)</span>
+              {formData.type=='rent' ? <p>Regualr price ($/month)</p> :  <p>Regualr price ($)</p>}
               </div>
             </div>
            
@@ -282,8 +281,8 @@ const onSubmitHandler=async(e)=>{
                   onChange={onChangeHandler}
                 />
                 <div className='flex flex-col items-center'>
-                  <p>Discounted price</p>
-                  <span className='text-xs'>($ / month)</span>
+                {formData.type=='rent' ? <p>Discounted price ($/month)</p> :  <p>Discounted price ($)</p>}
+                  
                 </div>
               </div> : null}
           

@@ -37,6 +37,9 @@ export const deleteUser= async (req,res,next)=>{
     if(req.id !== req.params.id) return next(errorhandler(404 , 'delete your own account'))
         try{
     await User.findByIdAndDelete(req.params.id)
+    const userlist = await  Listing.deleteMany({userRef: req.params.id})
+    if(!userlist) return  next(errorhandler(404,"something up")) 
+
     res.status(200).json('User has been deleted!');
         }catch(e){
             next(errorhandler(404,"error here"))

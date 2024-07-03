@@ -15,6 +15,7 @@ import {
     FaParking,
     
   } from 'react-icons/fa';
+import axios from "axios";
   
 
 const Listing = () => {
@@ -30,16 +31,13 @@ const Listing = () => {
       try {
         setLoading(true);
         const listingId = params.listingId;
-        const response = await fetch(`http://localhost:3000/api/listing/get/${listingId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(),
+        const response = await axios.get(`http://localhost:3000/api/listing/get/${listingId}`, {
+          headers: {
+            "Content-Type": "application/json",
           }
-        );
-        const data = await response.json();
+        })
+        
+        const data = await response.data
         console.log(data)
         if (data.success == false) {
           setError(true);
@@ -57,7 +55,7 @@ const Listing = () => {
     getListing();
   }, []);
 
-console.log(listing.imageUrls)
+
   return (
     <main>
       {loading ? <p className="text-center my-7 text-2xl">Loading...</p> : null}
@@ -82,14 +80,18 @@ console.log(listing.imageUrls)
         </div>
         
       )}
-    <div className='flex flex-col max-w-max mx-auto p-3 my-7 gap-4'>
+      {error ? (
+       null
+      ) : 
+   (<div>
+    <div className='flex flex-col max-w-max mx-auto p-3 my-7 gap-4 '>
             <p className='text-2xl font-semibold'>
               {listing.name} - ${' '}
               {listing.offer
                 ? listing.discountPrice?.toLocaleString('en-US')
                 : listing.regularPrice?.toLocaleString('en-US')}{listing.type === 'rent'&&'/month'}
             </p>
-            <p className='flex items-center mt-6 gap-2 text-slate-600  text-sm'>
+            <p className='flex items-center mt-6 gap-2 text-slate-600  text-sm font-semibold'>
               <FaMapMarkerAlt className='text-green-700' />
               {listing.address}
             </p>
@@ -144,7 +146,7 @@ console.log(listing.imageUrls)
             <ContactToOwner listing={listing}/>
           )}
           </div>
-       
+          </div> ) }
     </main>
   );
 };

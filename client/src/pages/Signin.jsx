@@ -5,6 +5,7 @@ import { signInFailure , signInSuccess } from '../Redux/User/UserSlice'
 import { useSelector , useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import OAuth from '../Component/OAuth'
+import axios from 'axios'
 const Signin = () => {
 
 const [formData , setFormData] = useState({})
@@ -27,29 +28,30 @@ useEffect(() => {
   const submitHandler=async (e)=>{
     try{
     e.preventDefault();
-    const response = await fetch("http://localhost:3000/api/auth/signin",
-       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const res = await response.json()
-      console.log(res)
-      if(res.success== false){
-        dispatch(signInFailure(res.message))
-        
-      }else{
-        localStorage.setItem("token" , res.token)
-        dispatch(signInSuccess(res))
-        navigate("/")
+    axios.post("http://localhost:3000/api/auth/signin", formData, {
+      headers: {
+        "Content-Type": "application/json",
       }
-    }
-    catch(e){
-      dispatch(signInFailure(e.message))
-    }
+    })
+    .then(response => {
+      console.log(response)
+      const res = response.data;
+      console.log(res);
+        localStorage.setItem("token", res.token);
+        dispatch(signInSuccess(res));
+        navigate("/");
+    })
+    .catch((error) => {
+      const res= error.response.data
+      if(res.success === false) {
+        dispatch(signInFailure(res.message));
+      }
+    });
+  }
+  catch(e){
+    dispatch(signInFailure(e.message));
+  }
+
   }
 
   return (

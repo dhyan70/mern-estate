@@ -7,6 +7,7 @@ import { updateFailure , updateSuccess , deleteFailure , deleteSuccess , ErrorUp
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 const Profie = () => {
   const {currentUser , error } = useSelector((state)=>state.user)
   const reference = useRef();
@@ -16,8 +17,8 @@ const Profie = () => {
   const [listing , setListing] = useState([])
 const [formData , setFormData] = useState({})
 const [update , setUpdate] = useState("")
-const [delErr , setDelErr] = useState(null)
-const [listingError , setshowListingError] = useState(null) 
+// const [delErr , setDelErr] = useState(null)
+// const [listingError , setshowListingError] = useState(null) 
 const navigate = useNavigate()
 const dispatch = useDispatch()
   useEffect(()=>{
@@ -46,7 +47,7 @@ const dispatch = useDispatch()
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log('File available at', downloadURL);
+            
             setFormData({...formData , avatar :downloadURL})
           });
         }
@@ -56,27 +57,24 @@ const dispatch = useDispatch()
 const onsubmitHandle=async (e)=>{
   e.preventDefault();
   const id = currentUser.user._id
-  try{
-    const response = await fetch(`http://localhost:3000/api/user/update/${id}`, {
-      method: "POST", 
+  
+     await axios.post(`http://localhost:3000/api/user/update/${id}`, 
+      formData, 
+      {
       headers: {
         "Content-Type": "application/json",
         Authorization: localStorage.getItem("token")
       },
-      body: JSON.stringify(formData),
-    });
-    
-    const res = await response.json()
-    if(res.success=== false){
-     return  dispatch(updateFailure(res.message))
-    }
-    setUpdate("Updated Successfully")
-    dispatch(updateSuccess(res))
-  }
-  catch(e){
-dispatch(updateFailure(e.message))
-  }
-
+    }).then((response)=>{
+      const res = response.data
+      setUpdate("Updated Successfully")
+    return dispatch(updateSuccess(res))
+    }).catch((err)=>{
+      const res= err.response.data
+      if(res.success === false){
+        return  dispatch(updateFailure(res.message))
+      }
+    })
 }
 
 const handleChange=(e)=>{
@@ -90,27 +88,23 @@ const handleChange=(e)=>{
   const handleDeleteUser =async (e)=>{
     e.preventDefault();
   const id = currentUser.user._id
-  try{
-    const response = await fetch(`http://localhost:3000/api/user/delete/${id}`, {
-      method: "DELETE", 
+  // deleting the user
+
+     await axios.delete(`http://localhost:3000/api/user/delete/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: localStorage.getItem("token")
-      },
-      body: JSON.stringify(formData),
-    });
-    
-    const res = await response.json()
-    if(res.success=== false){
-     return  dispatch(deleteFailure(res.message))
-    }
-    localStorage.removeItem("token")
+      }
+    }).then((response)=>{
+      localStorage.removeItem("token")
     dispatch(deleteSuccess())
     navigate("/")
-  }
-  catch(e){
-dispatch(deleteFailure(e.message))
-  }
+    }).catch((err)=>{
+      const res = err.response.data
+      if(res.success=== false){
+       dispatch(deleteFailure(res.message))
+       }
+    })
   }
 
 
@@ -129,22 +123,19 @@ dispatch(deleteFailure(e.message))
 const handleShowListings=async(e)=>{
 e.preventDefault()
 const id = currentUser.user._id
-console.log(id)
 try{
-  const response = await fetch(`http://localhost:3000/api/user/listing/${id}`, {
-    method: "GET", 
+//axios  get listing
+  const response = await axios.get(`http://localhost:3000/api/user/listing/${id}`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: localStorage.getItem("token")
-    },
-    
-  });
-  const res = await response.json()
-  console.log(res)
+    }
+  })
+  
+  const res = await response.data
   if(res.success == false){
    return  setshowListingError("error in showing listing")
   }
-  console.log(res)
   setListing(res)
 }catch(e){
   setshowListingError(e.message)
@@ -153,14 +144,15 @@ try{
 
 const handleListingDelete=async (id)=>{
   try{
-  const response = await fetch(`http://localhost:3000/api/listing/delete/${id}`, {
-    method: "DELETE", 
+  //axios delete listing
+  
+  const response = await axios.delete(`http://localhost:3000/api/listing/delete/${id}`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: localStorage.getItem("token")
-    },
-  });
-  const res = await response.json()
+    }
+  })
+  const res = await response.data
   if(res.success == false){
     setDelErr("error in deletion")
   }
@@ -169,7 +161,6 @@ const handleListingDelete=async (id)=>{
   setDelErr("error in deleting the listt")
 }
 }
-console.log(listing)
   return (
     <div>
         <div className='p-3 max-w-lg mx-auto'>

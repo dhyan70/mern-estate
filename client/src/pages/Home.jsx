@@ -6,26 +6,34 @@ import { Navigation } from 'swiper/modules';
 import SwiperCore from 'swiper';
 import 'swiper/css/bundle';
 import Listings from '../Component/Listing';
+import axios from 'axios';
 const Home = () => {
   const [offerListing  , setOfferListing] = useState([])
   const [rentListing  , setRentisting] = useState([])
   const [saleListing  , setSaleListing] = useState([])
+  const [error , setError] = useState(false)
   SwiperCore.use([Navigation]);
 
   useEffect(()=>{
     const getOfferInfo =async()=>{
-      const response = await fetch("http://localhost:3000/api/listing/search?offer=true&limit=4", {
-        method: "GET", 
+      setError(false)
+       await axios.get("http://localhost:3000/api/listing/search?offer=true&limit=4", {
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify(),
+        }
+      }).then(response => {
+        setError(false)
+        const data = response.data;
+        setOfferListing(data)
+      })
+      .catch((error) => {
+        setError(true)
+        const res= error.response.data
+        if(res.success === false) {
+          setError(error.response.data.message)
+          console.log(error.response.data.message)
+        }
       });
-      const data = await response.json();
-      if(data.success == false){
-        console.log(data.message)
-      }
-      setOfferListing(data)
     }
     getOfferInfo()
 
@@ -39,8 +47,9 @@ const Home = () => {
       });
       const data = await response.json();
       if(data.success == false){
-        console.log(data.message)
+        setError(true)
       }
+      setError(false)
       setRentisting(data)
     }
     rentInfo()
@@ -55,8 +64,9 @@ const Home = () => {
       });
       const data = await response.json();
       if(data.success == false){
-        console.log(data.message)
+        setError(true)
       }
+      setError(false)
       setSaleListing(data)
     }
     saleInfo()
@@ -64,11 +74,13 @@ const Home = () => {
 
   },[])
 
-  console.log(offerListing , rentListing , saleListing)
+  
 
 
   return (
+   
     <div>
+     
       <div className='flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto'>
         <h1 className='text-slate-700 font-bold text-3xl lg:text-6xl'>
           Find your next <span className='text-slate-500'>perfect</span>
@@ -88,20 +100,19 @@ const Home = () => {
           Let's get started...
         </Link>
       </div>
-
       {/* swiper */}
       <Swiper navigation>
         {offerListing &&
           offerListing.length > 0 &&
           offerListing.map((listing) => (
-            <SwiperSlide>
+            <SwiperSlide key={listing._id}>
               <div
+         key={listing._id}
                 style={{
                   background: `url(${listing.imageUrls[0]}) center no-repeat`,
                   backgroundSize: 'cover',
                 }}
                 className='h-[500px]'
-                key={listing._id}
               ></div>
             </SwiperSlide>
           ))}
@@ -117,7 +128,7 @@ const Home = () => {
               <Link className='text-sm text-blue-800 hover:underline ' to={'/search?offer=true'}>Show more offers</Link>
             </div>
             <div className='flex flex-wrap gap-6 w-full justify-center '>
-              {offerListing.map((listing,key) => (
+              {offerListing.map((listing) => (
                 <Listings listing={listing} key={listing._id} />
               ))}
             </div>
@@ -130,8 +141,8 @@ const Home = () => {
               <Link className='text-sm text-blue-800 hover:underline' to={'/search?type=rent'}>Show more places for rent</Link>
             </div>
             <div className='flex flex-wrap gap-4 justify-center'>
-              {rentListing.map((listing ,key) => (
-                <Listings listing={listing} key={listing._id} />
+              {rentListing.map((listing ) => (
+                <Listings listing={listing} key={listing._id}  />
               ))}
             </div>
           </div>
@@ -143,13 +154,14 @@ const Home = () => {
               <Link className='text-sm text-blue-800 hover:underline' to={'/search?type=sale'}>Show more places for sale</Link>
             </div>
             <div className='flex flex-wrap gap-4 justify-center'>
-              {saleListing.map((listing,key) => (
-                <Listings listing={listing} key={listing._id} />
+              {saleListing.map((listing) => (
+               <Listings  listing={listing} key={listing._id} />
               ))}
             </div>
           </div>
         )}
       </div>
+    
     </div>
   );
 }

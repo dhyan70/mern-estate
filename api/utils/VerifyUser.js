@@ -12,7 +12,7 @@ export const verifyUser=(req,res,next)=>{
     
     next()
   }catch(e){
-    next(errorhandler(404,'Update your own account by middleware'))
+    next(errorhandler(404,'Update your own account '))
   }
 
 }

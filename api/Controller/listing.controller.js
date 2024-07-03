@@ -63,6 +63,7 @@ export const getListingInfo=async(req,res,next)=>{
 }
 
 export const getistings =async(req,res,next)=>{
+  try{
   let offer = req.query.offer
   let parking = req.query.parking
   let furnished = req.query.furnished
@@ -102,4 +103,7 @@ export const getistings =async(req,res,next)=>{
   .sort({[sort] :order})
   .skip(startIndex)
   res.status(200).json(listing)
+}catch(e){
+  next(errorhandler(404,"backend error"))
+}
 }

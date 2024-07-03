@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
-import Listing from './Listing'
 import Listings from '../Component/Listing'
+import axios from 'axios'
 const Search = () => {
     const [formData , setFormData ]= useState({
         searchTerm : '',
@@ -16,7 +16,7 @@ const Search = () => {
     const [listing , setListing] = useState([])
     const [showMore , setShowMore] = useState(false)
     const [loading , setLoading] = useState(false)
-  
+    const [error, setError] = useState("")
     useEffect(()=>{
       let params = new URLSearchParams(location.search);
     const searchTermFromUrl = params.get("searchTerm")
@@ -50,28 +50,30 @@ const Search = () => {
 
 
       const getInfo =async()=>{
-        setLoading(true)
         const searchQuery = params.toString();
-        const response = await fetch(`http://localhost:3000/api/listing/search?${searchQuery}`, {
-          method: "GET", 
+        
+        await axios.get(`http://localhost:3000/api/listing/search?${searchQuery}`, {
           headers: {
             "Content-Type": "application/json",
-          },
-          body: JSON.stringify(),
-        });
-        const data = await response.json();
-        if(data.success == false){
-          console.log(data.message)
-        }
-        console.log(data.length)
-        if(data.length == 9){
-          setShowMore(true)
-        }else{
-          setShowMore(false)
-        }
-        setLoading(false)
-        setListing(data)
-        
+          }
+        }).then((response)=>{
+          const data = response.data
+          if(data.length == 9){
+            setShowMore(true)
+          }else{
+            setShowMore(false)
+          }
+          setLoading(false)
+          setListing(data)
+          
+        }).catch((err)=>{
+          const data = err.response.data
+          if(data.success=== false){
+            if(data.success == false){
+              setError(data.message)
+            }
+           }
+        })
       }
       getInfo()
     },[location.search])
@@ -253,7 +255,7 @@ const showMoreHandle =async()=>{
           Listing results:
         </h1>
         <div className='p-7 flex flex-wrap gap-4'>
-        {!loading && listing.length === 0 && (
+        {!loading && listing.length === 0 && !error && (
             <p className='text-xl text-slate-700'>No listing found!</p>
           )}
           {loading && (
@@ -261,6 +263,7 @@ const showMoreHandle =async()=>{
               Loading...
             </p>
           )}
+      
 
         {listing.map((listing) => (
               <Listings key={listing._id} listing={listing} />
@@ -274,6 +277,8 @@ const showMoreHandle =async()=>{
             </button>
           )}
         </div>
+        <div className='flex justify-center align-middle'>
+        {error ? <p className='text-rose-600 text-2xl font-semibold'>{error}</p> :null }</div>
       </div>
     </div>
     </div>

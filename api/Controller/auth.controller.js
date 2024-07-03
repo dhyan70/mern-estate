@@ -6,9 +6,10 @@ export const signup=async (req,res,next)=>{
     const username = req.body.username
     const password = req.body.password
     const email = req.body.email
-
+    console.log(email)
+    const user = await User.findOne({email:email})
+    if(user) return next(errorhandler(404 ,"This account exists"))
     const hashedpassword = bcrypt.hashSync(password , 10)
-    
     try{
     const user =  await User.create({
         username  , email ,password:hashedpassword
@@ -26,8 +27,7 @@ export const signup=async (req,res,next)=>{
 
 export const signin =async (req,res,next)=>{
 const email = req.body.email
-const password = req.body.password
-
+const password= req.body.password
 try{
 const user = await User.findOne({
     email:email
@@ -42,13 +42,10 @@ if(!validpass){
     res
     .status(200)
     .json({user,token})
+}catch(e){
+    next(e)
 }
-catch(error){
-    next(error)
 }
-}
-
-
 export const google =async (req,res,next)=>{
     try{
     const email = req.body.email
@@ -59,6 +56,26 @@ export const google =async (req,res,next)=>{
         .status(200)
         .json({user,token})
     }else{
+        return next(errorhandler(404,"this account does not exist"))
+    }
+}catch(e){
+    next(e)
+}   
+}
+
+export const signout=(req,res,next)=>{
+  
+        if(req.id !== req.params.id) return next(errorhandler(404 , 'delete your own account'))
+            res.status(200).json('signout success!');
+}
+
+export const googleSignup =async (req,res,next)=>{
+    try{
+    const email = req.body.email
+    const user = await User.findOne({email:email})
+    
+    if(user) return next(errorhandler(404 ,"This account exists"))
+if(!user){
         const email = req.body.email
         const photo = req.body.photo
         const username = req.body.name.split(' ').join('').toLowerCase() + Math.random().toString(36).slice(-4)
@@ -81,10 +98,4 @@ export const google =async (req,res,next)=>{
 }catch(e){
     next(e)
 }   
-}
-
-export const signout=(req,res,next)=>{
-  
-        if(req.id !== req.params.id) return next(errorhandler(404 , 'delete your own account'))
-            res.status(200).json('signout success!');
 }

@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import OAuth from '../Component/OAuth'
 import { useDispatch } from 'react-redux'
 import { signInSuccess ,signInFailure } from '../Redux/User/UserSlice'
 import { useSelector } from 'react-redux'
+import axios from 'axios'
+import OAuthup from '../Component/OAuthup'
 export default function Signup  () {
 
 const [FormData , Setformdata] = useState({})
@@ -21,24 +22,22 @@ const handlechange =(e)=>{
 const submitHandler=async (e)=>{
   e.preventDefault();
   try{
-  const response = await fetch("http://localhost:3000/api/auth/signup", {
-      method: "POST",
+  await axios.post("http://localhost:3000/api/auth/signup", 
+      FormData,{
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify(FormData),
-    });
-    const data = await response.json();
-    if(data.success == false){
-      dispatch(signInFailure(data.message))
-      return
-    }else{
+      }
+    }).then((response)=>{
+      const data = response.data
       localStorage.setItem("token" , data.token)
-      console.log(data)
       dispatch(signInSuccess(data))
       navigate("/")
-    }
-    
+    }).catch((error)=>{
+      const res= error.response.data
+      if(res.success === false) {
+        dispatch(signInFailure(res.message))
+      }
+    })
   }
   catch(error){
     dispatch(signInFailure(error.message))
@@ -78,7 +77,7 @@ const submitHandler=async (e)=>{
           className='bg-slate-800 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>
             Submit
         </button>
-        <OAuth />
+        <OAuthup />
        
       </form>
       <div className='flex gap-2 mt-5'>
