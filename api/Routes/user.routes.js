@@ -6,7 +6,7 @@ import { verifyUser } from '../utils/VerifyUser.js'
 import { getListing } from '../Controller/user.controller.js'
 
 router.get("/test" , test)
-router.post('/update/:id' , verifyUser, updateUser)
+router.put('/update/:id' , verifyUser, updateUser)
 router.delete('/delete/:id' , verifyUser, deleteUser)
 router.get('/listing/:id' ,verifyUser, getListing)
 router.get('/:id'  , verifyUser,getUserDetails)

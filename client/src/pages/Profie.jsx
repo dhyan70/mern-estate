@@ -58,7 +58,7 @@ const onsubmitHandle=async (e)=>{
   e.preventDefault();
   const id = currentUser.user._id
   
-     await axios.post(`http://localhost:3000/api/user/update/${id}`, 
+     await axios.put(`http://localhost:3000/api/user/update/${id}`, 
       formData, 
       {
       headers: {
