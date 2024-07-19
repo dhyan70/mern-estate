@@ -3,10 +3,9 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { errorhandler } from "../utils/error.js"
 export const signup=async (req,res,next)=>{
-    const username = req.body.username
-    const password = req.body.password
-    const email = req.body.email
-    console.log(email)
+    const username = await  req.body.username
+    const password = await req.body.password
+    const email = await req.body.email
     const user = await User.findOne({email:email})
     if(user) return next(errorhandler(404 ,"This account exists"))
     const hashedpassword = bcrypt.hashSync(password , 10)
