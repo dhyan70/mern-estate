@@ -1,6 +1,4 @@
 If you want to setup the application locally and test it
- git clone https://github.com/dhyan70/mern-estate.git
-1. for developement run 
-  --> docker-compose -f docker-compose-dev.yml up build
-2. for production run
-  --> docker-compose -f docker-compose-prod.yml up build
+1.  git clone https://github.com/dhyan70/mern-estate.git
+2.  docker-compose -f docker-compose-dev.yml up build  (for development)
+3.  docker-compose -f docker-compose-prod.yml up build (for production)
