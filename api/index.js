@@ -3,6 +3,7 @@ const app = express()
 import mongoose from 'mongoose'
 import Userrouter from './Routes/user.routes.js'
 import Authrouter from './Routes/auth.routes.js'
+import BookmarkRouter from './Routes/bookmarks.routes.js'
 import ListingRouter from './Routes/listing.routes.js'
 import dotenv from 'dotenv'
 import cors from 'cors'
@@ -22,6 +23,7 @@ app.use(cors());
 app.use("/api/user" , Userrouter )
 app.use("/api/auth" , Authrouter )
 app.use("/api/listing" ,ListingRouter )
+app.use("/api/bookmarks" , BookmarkRouter)
 
 app.use((err, req ,res , next)=>{
     const message = err.message

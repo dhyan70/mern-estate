@@ -14,7 +14,8 @@ import CreateListing from './pages/CreateListing'
 import UpdateListing from './pages/UpdateListing'
 import Listing from './pages/Listing'
 import Search from './pages/Search'
-
+import Mybookmarks from './pages/Mybookmarks'
+import BookingForm from './pages/BookingDetails'
 function App() {
 
   return (
@@ -28,11 +29,12 @@ function App() {
       <Route path='/signup' element={<Signup />} />
       <Route path='/about' element={<About />} />
       <Route path='/listing/:listingId' element={<Listing />} />
+       <Route path='/listing/:listingId/bookingDetails' element={<BookingForm />} />
       <Route path ="/search"  element={<Search />} />
       <Route element={<Private />} >
       <Route path ='/create-listing' element={<CreateListing />} />
       <Route path ='/update-listing/:listingId' element={<UpdateListing />} />
-
+      <Route path='/mybookmarks' element ={ <Mybookmarks />} />
       <Route path='/profile' element={<Profie />} />
       </Route>
       </Route>

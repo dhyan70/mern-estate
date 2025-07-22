@@ -1,6 +1,6 @@
 import Listing from "../models/listing.model.js"
 import { errorhandler } from "../utils/error.js"
-
+import User from "../models/user.model.js"
 export const createListing =async (req,res,next)=>{
 try{
     const list = await Listing.create(req.body)
@@ -49,17 +49,63 @@ export const updateListing =async(req,res,next)=>{
 
 }
 
-export const getListingInfo=async(req,res,next)=>{
-  try{
-  const listing =  await Listing.findById(req.params.id)
+// export const getListingInfo=async(req,res,next)=>{
+//   try{
+//   const listing =  await Listing.findById(req.params.id)
+  
+//   if(!listing){
+//    return next(errorhandler(404,"listing not found"))
+//   }
+//   res.status(200).json(listing)
+// }catch(e){
+//   next(e)
+// }
+// }
+
+export const getBookMark=async(req,res,next)=>{
+ const { userId, listingIdforbackend } = req.query;
+
+try {
+  const listing =  await Listing.findById(listingIdforbackend)
+  
   if(!listing){
    return next(errorhandler(404,"listing not found"))
   }
-  res.status(200).json(listing)
-}catch(e){
-  next(e)
+  console.log("User ID:", userId, "Listing ID:", listingIdforbackend);
+
+  const userDetails = await User.findById(userId);
+
+  if (!userDetails) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const isBookmarked = userDetails.bookmarks.includes(listingIdforbackend)
+
+  if (isBookmarked) {
+    return res.status(200).json({ bookmarked: true , listingDetails: listing });
+  } else {
+    return res.status(200).json({ bookmarked: false , listingDetails: listing });
+  }
+
+} catch (err) {
+  console.error("Error checking bookmark:", err);
+  return res.status(500).json({ error: "Server error" });
 }
- 
+
+}
+
+
+
+export const getAllMybookmarks = async(req,res,next)=>{
+
+  const {userId} = req.query
+  console.log("id is ",userId)
+const userBookMarkedListings = await User.findById(userId).populate("bookmarks");
+  if(!userBookMarkedListings) return res.status(404).json("NO bookmarks")
+    console.log(userBookMarkedListings.bookmarks)
+    res.status(200).json(userBookMarkedListings.bookmarks)
+
+
 }
 
 export const getistings =async(req,res,next)=>{

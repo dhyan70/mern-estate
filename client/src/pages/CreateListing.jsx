@@ -266,7 +266,7 @@ const onSubmitHandler=async(e)=>{
                 onChange={onChangeHandler}
               />
               <div className='flex flex-col items-center'>
-              {formData.type=='rent' ? <p>Regualr price ($/month)</p> :  <p>Regualr price ($)</p>}
+              {formData.type=='rent' ? <p>Regualr price ($/day)</p> :  <p>Regualr price ($)</p>}
               </div>
             </div>
            
@@ -281,7 +281,7 @@ const onSubmitHandler=async(e)=>{
                   onChange={onChangeHandler}
                 />
                 <div className='flex flex-col items-center'>
-                {formData.type=='rent' ? <p>Discounted price ($/month)</p> :  <p>Discounted price ($)</p>}
+                {formData.type=='rent' ? <p>Discounted price ($/day)</p> :  <p>Discounted price ($)</p>}
                   
                 </div>
               </div> : null}

@@ -1,5 +1,5 @@
 
-FROM node:16 AS PRODUCTION
+FROM  node:18 AS development
 
 
 WORKDIR /usr/src/api
