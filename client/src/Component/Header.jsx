@@ -28,6 +28,8 @@ const Header = () => {
       setSearchValue(value)
     }
   }, [location.search])
+
+  
   return (
     <div>
       <header className='bg-slate-200 shadow-md'>
