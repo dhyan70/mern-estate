@@ -5,7 +5,7 @@ import { app } from '../../firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate , useParams } from 'react-router-dom';
 const CreateListing = () => {
-  const [files , setFiles] = useState([])
+  const [files , setFiles] = useState([{}])
   const [error , setError] = useState(null)
   const {currentUser } = useSelector((state)=>state.user)
   const [success , setSuccess] = useState("")
@@ -33,8 +33,8 @@ const [catchError , setCatchError] = useState(null)
   }
   useEffect(()=>{
     const fetchListing = async () => {
-        const listingId = params.listingId;
-        const response = await fetch(`http://localhost:3000/api/listing/get/${listingId}`, {
+        const listingId =  params.listingId;
+        const response = await fetch(`http://localhost:3000/api/listing/getforupdate/${listingId}`, {
           method: "GET", 
           headers: {
             "Content-Type": "application/json",
@@ -160,7 +160,7 @@ const onSubmitHandler=async(e)=>{
 
 }catch(e){
   console.log(e)
-  setError(e)
+  setError(e.message)
 }
 
 }
@@ -301,7 +301,7 @@ const onSubmitHandler=async(e)=>{
               />
               <div className='flex flex-col items-center'>
                 <p>Regular price</p>
-                  <span className='text-xs'>($ / month)</span>
+                  <span className='text-xs'>($ / day)</span>
               </div>
             </div>
            
@@ -318,7 +318,7 @@ const onSubmitHandler=async(e)=>{
                 />
                 <div className='flex flex-col items-center'>
                   <p>Discounted price</p>
-                  <span className='text-xs'>($ / month)</span>
+                  <span className='text-xs'>($ / day)</span>
                 </div>
               </div> : null}
           
@@ -379,7 +379,7 @@ const onSubmitHandler=async(e)=>{
           >
             Submit
           </button>
-         {error ? <span className='text-red-600 font-semibold'>{error}</span> : null}
+         {error ? <span className='text-red-600 font-semibold'>{error.message}</span> : null}
          {success ? <span className='text-green-700 font-semibold'>{success}</span> : null }
          {errorD ? <span className='text-red-600 font-semibold'>{errorD}</span> : null}
         </div>

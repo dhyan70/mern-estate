@@ -17,7 +17,7 @@ import {
 } from 'react-icons/fa';
 import axios from "axios";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-
+import { useLocation } from "react-router-dom";
 const Listing = () => {
   SwiperCore.use([Navigation]);
   const { currentUser } = useSelector((state) => state.user)
@@ -29,6 +29,7 @@ const Listing = () => {
 
   const params = useParams();
   const listingId = params.listingId;
+  const location = useLocation()
   useEffect(() => {
     // const getListing = async () => {
     //   try {
@@ -136,7 +137,7 @@ const Listing = () => {
                 {listing.offer
                   ? listing.discountPrice?.toLocaleString('en-US')
                   : listing.regularPrice?.toLocaleString('en-US')}
-                {listing.type === 'rent' && <span className="text-sm text-gray-600">/month</span>}
+                {listing.type === 'rent' && <span className="text-sm text-gray-600">/day</span>}
               </p>
               <button onClick={handleBookmark} className="text-red-500 text-2xl">
                 {bookmarked ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -200,7 +201,7 @@ const Listing = () => {
                   Contact landlord
                 </button>
 
-                <Link to={`/bookingDetails`}>
+                <Link to={`${location.pathname}/bookingDetails`}>
                   <button
                     className="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 rounded-lg uppercase tracking-wide transition"
                   >
