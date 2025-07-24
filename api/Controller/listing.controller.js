@@ -2,7 +2,7 @@ import Listing from "../models/listing.model.js"
 import { errorhandler } from "../utils/error.js"
 import User from "../models/user.model.js"
 import Stripe from "stripe";
-const stripe = new Stripe('sk_test_51PAtIpSGvUnCcH38ZgzRzfIQ4xEw5fyy0vb8w0ARjZWU84oPBIzkN5xivt7mlTHBGJGrpIeloiqJ3MZrbwRRaqBL00stQDAfcf');
+const stripe = new Stripe(process.env.STRIPE_API);
 export const createListing = async (req, res, next) => {
   try {
     const list = await Listing.create(req.body)
