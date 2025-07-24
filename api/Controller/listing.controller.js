@@ -2,7 +2,7 @@ import Listing from "../models/listing.model.js"
 import { errorhandler } from "../utils/error.js"
 import User from "../models/user.model.js"
 import Stripe from "stripe";
-const stripe = new Stripe(process.env.STRIPE_API);
+const stripe = new Stripe('sk_test_51PAtIpSGvUnCcH38ZgzRzfIQ4xEw5fyy0vb8w0ARjZWU84oPBIzkN5xivt7mlTHBGJGrpIeloiqJ3MZrbwRRaqBL00stQDAfcf');
 export const createListing = async (req, res, next) => {
   try {
     const list = await Listing.create(req.body)
@@ -18,8 +18,10 @@ export const createListing = async (req, res, next) => {
 
 export const checkout = async (req, res, next) => {
   console.log("in checkout")
-  const { listingId, nights } = req.body
+  const { listingId, nights,userid,startDate,endDate } = req.body
+  console.log(req.body)
   try {
+    const user = await User.findById(userid)
     const listing = await Listing.findById(listingId)
     if (!listing) return next(errorhandler(404, 'Listing not found please try again'))
 
@@ -42,10 +44,19 @@ export const checkout = async (req, res, next) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `http://localhost:5173`,
+      success_url: `http://localhost:5173/mybookings`,
       cancel_url: `http://localhost:5173/listing/${listingId}`,
     });
-    console.log(session.url)
+
+     user.paymentDetails.push({
+      listingid:listingId,
+      name: user.username,
+      startDate:startDate,
+      endDate:endDate
+     })
+     await user.save();
+
+     console.log("insert done" , user)
     res.status(200).json({ url: session.url });
   }
   catch (err) {

@@ -16,6 +16,7 @@ import Listing from './pages/Listing'
 import Search from './pages/Search'
 import Mybookmarks from './pages/Mybookmarks'
 import BookingForm from './pages/BookingDetails'
+import Mybookings from './pages/Mybookings'
 function App() {
 
   return (
@@ -36,6 +37,7 @@ function App() {
       <Route path ='/update-listing/:listingId' element={<UpdateListing />} />
       <Route path='/mybookmarks' element ={ <Mybookmarks />} />
       <Route path='/profile' element={<Profie />} />
+      <Route path='/mybookings'  element ={<Mybookings />} />
       </Route>
       </Route>
     </Routes>

@@ -1,88 +1,122 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
-  const { currentUser } = useSelector((state) => state.user)
+  const { currentUser } = useSelector((state) => state.user);
+  const [searchValue, setSearchValue] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
-  const [searchValue, setSearchValue] = useState("")
-  const navigate = useNavigate()
   const handleClick = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const params = new URLSearchParams(window.location.search);
-      params.set("searchTerm", searchValue)
+      params.set('searchTerm', searchValue);
       const searchQuery = params.toString();
-      navigate(`/search?${searchQuery}`)
+      navigate(`/search?${searchQuery}`);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-  }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const value = params.get("searchTerm")
+    const value = params.get('searchTerm');
     if (value) {
-      setSearchValue(value)
+      setSearchValue(value);
     }
-  }, [location.search])
+  }, [location.search]);
 
-  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div>
-      <header className='bg-slate-200 shadow-md'>
-        <div className='flex justify-between items-center max-w-6xl mx-auto p-3'>
-          <Link to='/'>
-            <h1 className='font-bold text-sm sm:text-xl flex flex-wrap'>
-              <span className='text-slate-500'>Major</span>
-              <span className='text-slate-700'>Estate</span>
-            </h1>
+    <header className='bg-slate-200 shadow-md'>
+      <div className='flex justify-between items-center max-w-6xl mx-auto p-3'>
+        <Link to='/'>
+          <h1 className='font-bold text-sm sm:text-xl flex flex-wrap'>
+            <span className='text-slate-500'>Major</span>
+            <span className='text-slate-700'>Estate</span>
+          </h1>
+        </Link>
+
+        <form className='bg-slate-100 p-3 rounded-lg flex items-center'>
+          <input
+            onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+            type='text'
+            placeholder='Search...'
+            className='bg-transparent focus:outline-none w-24 sm:w-64'
+          />
+          <button onClick={handleClick}>
+            <FaSearch className='text-slate-600' />
+          </button>
+        </form>
+
+        <ul className='flex gap-4 items-center relative'>
+          <Link to='/' className='hidden sm:inline text-slate-700 hover:underline'>
+            Home
           </Link>
-          <form
-            className='bg-slate-100 p-3 rounded-lg flex items-center'
-          >
-            <input onChange={(e) => setSearchValue(e.target.value)}
-              value={searchValue}
-              type='text'
-              placeholder='Search...'
-              className='bg-transparent focus:outline-none w-24 sm:w-64'
-            />
-            <button onClick={handleClick}>
-              <FaSearch className='text-slate-600' />
-            </button>
-          </form>
-          <ul className='flex gap-4'>
-            <Link to='/'>
-              <li className='hidden sm:inline text-slate-700 hover:underline'>
-                Home
-              </li>
+          <Link to='/about' className='hidden sm:inline text-slate-700 hover:underline'>
+            About
+          </Link>
+          {!currentUser && (
+            <Link to='/signin' className='text-slate-700 hover:underline'>
+              Signin
             </Link>
-            <Link to='/about'>
-              <li className='hidden sm:inline text-slate-700 hover:underline'>
-                About
-              </li>
-            </Link>
-            <Link to='/signin'>
-              <li className=' text-slate-700 hover:underline'> {currentUser ? null : "Signin"}</li>
-            </Link>
-            <Link to="/profile">
-              {currentUser ? <img className='rounded-full h-7 w-7 object-cover mr-[50px]' src={currentUser.user?.avatar}></img> : null}
-            </Link>
-            <Link to='/mybookmarks'>
-              {currentUser ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-              </svg>
-                : null}
-            </Link>
-          </ul>
-        </div>
+          )}
 
-      </header>
+          {currentUser && (
+            <div className='relative' ref={dropdownRef}>
+              <img
+                onClick={() => setDropdownOpen(true)}
+                className='rounded-full h-8 w-8 object-cover cursor-pointer'
+                src={currentUser.user?.avatar}
+                alt='profile'
+              />
 
-    </div>
-  )
-}
+              {dropdownOpen && (
+                <div className='absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-50'>
+                  <Link
+                    to='/profile'
+                    className='block px-4 py-2 hover:bg-slate-100 text-sm text-slate-700'
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Edit Profile
+                  </Link>
+                  <Link
+                    to='/mybookmarks'
+                    className='block px-4 py-2 hover:bg-slate-100 text-sm text-slate-700'
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Bookmarks
+                  </Link>
+                  <Link
+                    to='/mybookings'
+                    className='block px-4 py-2 hover:bg-slate-100 text-sm text-slate-700'
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    My Bookings
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </ul>
+      </div>
+    </header>
+  );
+};
 
-export default Header
+export default Header;
