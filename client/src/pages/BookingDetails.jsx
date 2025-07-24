@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import moment from "moment";
 import { useParams } from "react-router-dom";
 const BookingForm = () => {
@@ -13,6 +14,7 @@ const BookingForm = () => {
         startDate: "",
         endDate: ""
     });
+    const {currentUser } = useSelector((state)=>state.user)
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedStartDate, setSelectedStartDate] = useState(null);
     const [selectedEndDate, setSelectedEndDate] = useState(null);
@@ -61,7 +63,9 @@ const BookingForm = () => {
             body: JSON.stringify({
                 listingId,
                 nights,
-
+                userid :currentUser.user._id,
+                startDate :formData.startDate,
+                endDate : formData.endDate
             }),
         });
         const { url } = await response.json(); // Get the session URL from the response
