@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import moment from "moment";
+import axios from "axios";
+
 import { useParams } from "react-router-dom";
 const BookingForm = () => {
     const [formData, setFormData] = useState({
@@ -14,7 +16,7 @@ const BookingForm = () => {
         startDate: "",
         endDate: ""
     });
-    const {currentUser } = useSelector((state)=>state.user)
+    const { currentUser } = useSelector((state) => state.user)
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedStartDate, setSelectedStartDate] = useState(null);
     const [selectedEndDate, setSelectedEndDate] = useState(null);
@@ -39,7 +41,7 @@ const BookingForm = () => {
         const start = new Date(selectedStartDate);
         const end = new Date(selectedEndDate);
         const timeDiff = end - start;
-        return Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); 
+        return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
     };
 
 
@@ -57,21 +59,20 @@ const BookingForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await fetch('http://localhost:3000/api/listing/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                listingId,
-                nights,
-                userid :currentUser.user._id,
-                startDate :formData.startDate,
-                endDate : formData.endDate
-            }),
+        const response = await axios.post('http://localhost:3000/api/listing/checkout', {
+            listingId,
+            nights,
+            userid: currentUser.user._id,
+            startDate: formData.startDate,
+            endDate: formData.endDate
         });
-        const { url } = await response.json(); // Get the session URL from the response
+        const { url } = response.data;
 
-        window.location.href = url; // Redirect to Stripe Checkout
-
+        if (url) {
+            window.location.href = url;
+        } else {
+            alert("This is already booked");
+        }
     };
 
     // calender code

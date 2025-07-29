@@ -1,7 +1,8 @@
 import { list } from 'firebase/storage'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-
+import axios
+ from 'axios'
 const ContactToOwner = ({listing}) => {
     console.log(listing)
   const [landlord , setLandlord] = useState({})
@@ -13,15 +14,13 @@ const [message , setMessage] = useState("")
         const getInfo =async()=>{
             try{
             const id = listing.userRef
-            const response = await fetch(`http://localhost:3000/api/user/${id}`, {
-                method: "GET", 
+            const response = await axios.get(`http://localhost:3000/api/user/${id}`, {
                 headers: {
                   "Content-Type": "application/json",
                   Authorization: localStorage.getItem("token")
                 },
-                body: JSON.stringify(),
               });
-              const data = await response.json();
+              const data = await response.data;
               if(data.success == false){
                 console.log("error in backend ")
               }

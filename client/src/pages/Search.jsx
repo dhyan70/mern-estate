@@ -126,14 +126,8 @@ const showMoreHandle =async()=>{
   params.set("startIndex" , startingIndex)
   const searchQuery = params.toString();
   console.log(searchQuery)
-  const response = await fetch(`http://localhost:3000/api/listing/search?${searchQuery}`, {
-    method: "GET", 
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(),
-  });
-  const data = await response.json();
+  const response = await axios.get(`http://localhost:3000/api/listing/search?${searchQuery}`);
+  const data = await response.data;
   console.log(data)
   if(data.success == false){
     console.log(data.message)

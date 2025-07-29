@@ -7,6 +7,7 @@ import { signInFailure , signInSuccess } from '../Redux/User/UserSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import axios from 'axios';
 const OAuthup = () => {
   const navigate = useNavigate()
   const dispatch= useDispatch()
@@ -19,19 +20,14 @@ const OAuthup = () => {
         const provider = new GoogleAuthProvider();
         const result =await signInWithPopup(auth, provider)
         try{
-        const response = await fetch("http://localhost:3000/api/auth/google/signup", {
-          method: "POST", 
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        const response = await axios.post("http://localhost:3000/api/auth/google/signup", {
             name : result.user.displayName,
             email: result.user.email,
             photo:result.user.photoURL
-          }),
-        });
-        const res = await response.json()
-        console.log(response)
+          })
+        
+        const res = await response.data
+        console.log(res)
         if(res.success==false){
           console.log(res.message)
           dispatch(signInFailure(res.message))

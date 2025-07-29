@@ -70,9 +70,8 @@ next(e)
 
 export const getBookings =async(req,res,next)=>{
     const userId =  req.params.id
-    
     const user = await User.findById(userId).populate("paymentDetails.listingid");
-    console.log("user detail for booking showing is " ,user)
+    console.log(user)
     if(!user) return next(errorhandler(404,"User not found"))
     res.status(200).json({ details :user.paymentDetails })
 }

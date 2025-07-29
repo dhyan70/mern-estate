@@ -5,7 +5,12 @@ import Stripe from "stripe";
 const stripe = new Stripe('sk_test_51PAtIpSGvUnCcH38ZgzRzfIQ4xEw5fyy0vb8w0ARjZWU84oPBIzkN5xivt7mlTHBGJGrpIeloiqJ3MZrbwRRaqBL00stQDAfcf');
 export const createListing = async (req, res, next) => {
   try {
-    const list = await Listing.create(req.body)
+    const { name, description, ...rest } = req.body;
+    const product = await stripe.products.create({
+      name: name,
+      description: description
+    })
+    const list = await Listing.create({name, description, ...rest,productid :product.id})
     return res.status(201).json({
       success: true,
       list
@@ -17,26 +22,25 @@ export const createListing = async (req, res, next) => {
 
 
 export const checkout = async (req, res, next) => {
-  console.log("in checkout")
+  console.log("the checkout handler gets" , req.body)
   const { listingId, nights,userid,startDate,endDate } = req.body
-  console.log(req.body)
   try {
     const user = await User.findById(userid)
     const listing = await Listing.findById(listingId)
-    if (!listing) return next(errorhandler(404, 'Listing not found please try again'))
 
-    const product = await stripe.products.create({
-      name: listing.name,
-      description: listing.description
-    })
+    if (!listing) return next(errorhandler(404, 'Listing not found please try again'))
+    
     const totalAmount = listing.regularPrice * nights * 100;
+const parsedEndDate = new Date(endDate);
+const expireAtis = new Date(parsedEndDate.getTime() + 5 * 60 * 1000);
 
     const price = await stripe.prices.create({
-      product: product.id,
+      product: listing.productid,
       unit_amount: totalAmount, // Convert to cents
       currency: 'usd',
     });
-
+   const userListing  = await  user.paymentDetails.filter((details) => details.listingid == listingId)
+   if(userListing.length ==0){
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
@@ -47,17 +51,18 @@ export const checkout = async (req, res, next) => {
       success_url: `http://localhost:5173/mybookings`,
       cancel_url: `http://localhost:5173/listing/${listingId}`,
     });
-
      user.paymentDetails.push({
       listingid:listingId,
       name: user.username,
       startDate:startDate,
-      endDate:endDate
+      endDate:endDate,
+      expireAt : expireAtis
      })
      await user.save();
-
-     console.log("insert done" , user)
     res.status(200).json({ url: session.url });
+   }else{
+      next(errorhandler(404, 'this is booked'))
+   }
   }
   catch (err) {
     next(err)
@@ -113,6 +118,37 @@ export const getListingInfo=async(req,res,next)=>{
 }
 }
 
+
+export const checkPaymentStatus  = async(req,res,next) =>{
+    const { userId, listingIdforbackend } = req.query;
+    
+    try{
+ const listing = await Listing.findById(listingIdforbackend)
+    if (!listing) {
+      return next(errorhandler(404, "listing not found"))
+    }
+
+    const userDetails = await User.findById(userId).populate("paymentDetails.listingid");
+
+    // console.log(userDetails.paymentDetails[0].listingid._id == listingIdforbackend  )
+    if (!userDetails) {
+      return res.status(404).json({ message: "User not found" });
+    }
+     const userPaymentStatus = userDetails.paymentDetails.filter(
+    (detail) => detail.listingid._id == listingIdforbackend
+  );
+     console.log("userpayment status is " , userPaymentStatus)
+    if ( userPaymentStatus.length >= 1 ) {
+      return res.status(200).json({ paymentStatus: true  });
+    } else {
+      return res.status(200).json({ paymentStatus: false });
+    }
+    } catch(e){
+          return res.status(500).json({ error: "Server error in status checking" });
+    }
+}
+
+
 export const getBookMark = async (req, res, next) => {
   const { userId, listingIdforbackend } = req.query;
 
@@ -122,18 +158,16 @@ export const getBookMark = async (req, res, next) => {
     if (!listing) {
       return next(errorhandler(404, "listing not found"))
     }
-    console.log("User ID:", userId, "Listing ID:", listingIdforbackend);
 
     const userDetails = await User.findById(userId);
 
     if (!userDetails) {
       return res.status(404).json({ message: "User not found" });
     }
-
     const isBookmarked = userDetails.bookmarks.includes(listingIdforbackend)
 
-    if (isBookmarked) {
-      return res.status(200).json({ bookmarked: true, listingDetails: listing });
+    if (isBookmarked ) {
+      return res.status(200).json({ bookmarked: true, listingDetails: listing  });
     } else {
       return res.status(200).json({ bookmarked: false, listingDetails: listing });
     }
@@ -150,10 +184,8 @@ export const getBookMark = async (req, res, next) => {
 
 export const getAllMybookmarks = async (req, res, next) => {
   const { userId } = req.query
-  console.log("id is ", userId)
   const userBookMarkedListings = await User.findById(userId).populate("bookmarks");
   if (!userBookMarkedListings) return res.status(404).json("NO bookmarks")
-  console.log(userBookMarkedListings.bookmarks)
   res.status(200).json(userBookMarkedListings.bookmarks)
 
 
