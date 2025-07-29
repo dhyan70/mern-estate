@@ -18,7 +18,6 @@ export const addBookmark = async (req, res, next) => {
         }
         //1st time
         users.bookmarks.push(listingId);
-
         await users.save();
 
         return res.status(200).json({ success: true, listingId:listingId });

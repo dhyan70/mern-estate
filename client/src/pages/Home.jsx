@@ -38,14 +38,12 @@ const Home = () => {
     getOfferInfo()
 
     const rentInfo=async()=>{
-      const response = await fetch("http://localhost:3000/api/listing/search?type=rent&limit=4", {
-        method: "GET", 
+      const response = await axios.get("http://localhost:3000/api/listing/search?type=rent&limit=4", {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(),
       });
-      const data = await response.json();
+      const data = await response.data
       if(data.success == false){
         setError(true)
       }
@@ -55,14 +53,12 @@ const Home = () => {
     rentInfo()
 
     const saleInfo=async()=>{
-      const response = await fetch("http://localhost:3000/api/listing/search?type=sale&limit=4", {
-        method: "GET", 
+      const response = await axios.get("http://localhost:3000/api/listing/search?type=sale&limit=4", {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(),
       });
-      const data = await response.json();
+      const data = await response.data;
       if(data.success == false){
         setError(true)
       }
@@ -70,15 +66,9 @@ const Home = () => {
       setSaleListing(data)
     }
     saleInfo()
-    
-
   },[])
 
-  
-
-
   return (
-   
     <div>
       <div className='flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto'>
         <h1 className='text-slate-700 font-bold text-3xl lg:text-6xl'>

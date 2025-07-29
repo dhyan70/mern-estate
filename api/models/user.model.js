@@ -2,36 +2,37 @@ import { text } from "express";
 import mongoose from "mongoose";
 
 const userSchema = mongoose.Schema({
-    username :{
+    username: {
         type: String,
-        required:true,
-        unique:true,
+        required: true,
+        unique: true,
     },
-    password:{
+    password: {
         type: String,
-        required:true,
-    }, 
-    email:{
-        type: String,
-        required:true,
-        unique:true
+        required: true,
     },
-    avatar:{
-    type: String,
-      default: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    avatar: {
+        type: String,
+        default: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
     },
     bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Listing' }],
-    paymentDetails :[{
+    paymentDetails: [{
         listingid: { type: mongoose.Schema.Types.ObjectId, ref: "Listing" },
-        name:String,
+        name: String,
         startDate: Date,
-        endDate:Date
+        endDate: Date,
+        expireAt: Date
     }]
 },
-    
-   { timestamps :true }
+
+    { timestamps: true }
 )
 
-const User = mongoose.model('UserInfo' , userSchema )
+const User = mongoose.model('UserInfo', userSchema)
 
 export default User;

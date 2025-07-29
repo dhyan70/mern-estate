@@ -26,10 +26,11 @@ const Listing = () => {
   const [listing, setListing] = useState([]);
   const [loading, setLoading] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
-
+  const [bookingbtn , setbookingbtn] = useState(false)
   const params = useParams();
   const listingId = params.listingId;
   const location = useLocation()
+
   useEffect(() => {
     // const getListing = async () => {
     //   try {
@@ -56,9 +57,30 @@ const Listing = () => {
     //     setLoading(false);
     //   }
     // };
+
+    const checkBookedorNot = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/listing/checkPaymentStatus", {
+          params: {
+            userId: currentUser.user._id,
+            listingIdforbackend: listingId,
+          },
+           headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        console.log(res)
+          if(res.data.paymentStatus){
+            setbookingbtn(true)
+          }else{
+            setbookingbtn(false)
+          }
+      }
+      catch(e){
+        console.log(e)
+      }
+    }
     const checkBookmark = async () => {
-      console.log("this is called")
-      const listingId = params.listingId;
       try {
         const res = await axios.get(`http://localhost:3000/api/bookmarks/getbookmark`, {
           params: {
@@ -83,6 +105,7 @@ const Listing = () => {
       }
     }
     checkBookmark();
+    checkBookedorNot()
   }, []);
 
   const handleBookmark = async () => {
@@ -202,7 +225,7 @@ const Listing = () => {
                 </button>
 
                 <Link to={`${location.pathname}/bookingDetails`}>
-                  <button
+                  <button disabled={bookingbtn}
                     className="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 rounded-lg uppercase tracking-wide transition"
                   >
                     Book the Property

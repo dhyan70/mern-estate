@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-
+import axios from 'axios';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
 import { app } from '../../firebase';
 import { useSelector } from 'react-redux';
@@ -114,25 +114,18 @@ const onSubmitHandler=async(e)=>{
     return setError('You must upload at least one image');
   if(+formData.discountPrice > +formData.regularPrice) return setDError("Discount Price is more than regualr price")
   try{
-  const response = await fetch("http://localhost:3000/api/listing/create-listing", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ ...formData,
+  const response = await axios.post("http://localhost:3000/api/listing/create-listing", {
+     ...formData,
       userRef: currentUser.user._id,
-    }),
-  });
-  const res = await response.json();
+    })
+  const res = await response.data;
   console.log(res)
   if(res.success == false){
     setError(res.message)
   }
   setSuccess("SuccessFully Listed")
   navigate(`/listing/${res.list._id}`);
-
   console.log(res.list._id)
-
 }catch(e){
   console.log(e)
   setError(e)
